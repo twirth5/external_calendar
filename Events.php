@@ -2,7 +2,10 @@
 
 namespace humhub\modules\external_calendar;
 
+use humhub\modules\calendar\widgets\CalendarControls;
+use humhub\modules\external_calendar\widgets\ExportButton;
 use Yii;
+use yii\base\WidgetEvent;
 use yii\helpers\Url;
 use yii\base\BaseObject;
 use humhub\modules\external_calendar\models\ExternalCalendarEntry;
@@ -25,6 +28,17 @@ class Events extends BaseObject
         if (!$contentContainer || $contentContainer->isModuleEnabled('external_calendar')) {
             CalendarExtension::addItemTypes($event);
         }
+    }
+
+    /**
+     * @param $event WidgetEvent
+     */
+    public static function onCalendarControlsInit($event)
+    {
+        /* @var $controls CalendarControls */
+        $controls = $event->sender;
+
+        $controls->addWidget(ExportButton::class, ['container' => $controls->container]);
     }
 
 
