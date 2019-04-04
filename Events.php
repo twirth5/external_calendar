@@ -38,7 +38,7 @@ class Events extends BaseObject
         /* @var $controls CalendarControls */
         $controls = $event->sender;
 
-        $controls->addWidget(ExportButton::class, ['container' => $controls->container]);
+        $controls->addWidget(ExportButton::class, ['container' => $controls->container],  ['sortOrder' => 50]);
     }
 
 
