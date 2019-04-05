@@ -11,6 +11,8 @@ use humhub\widgets\Tabs;
 
 
 Assets::register($this);
+
+$editLabel = $model->isNewRecord ?  Yii::t('ExternalCalendarModule.base', 'New export') :  Yii::t('ExternalCalendarModule.base', 'Edit export');
 ?>
 
 <?php ModalDialog::begin(['header' => Yii::t('ExternalCalendarModule.base', '<strong>Calendar</strong> export'), 'size' => 'large']) ?>
@@ -19,7 +21,7 @@ Assets::register($this);
         'viewPath' => '@external_calendar/views/export',
         'params' => ['model' => $model],
         'items' => [
-            ['label' => Yii::t('ExternalCalendarModule.base', 'New export'), 'view' => 'tab-new'],
+            ['label' => Yii::t('ExternalCalendarModule.base', 'New export'), 'view' => 'tab-edit'],
             ['label' => Yii::t('ExternalCalendarModule.base', 'My exports'), 'view' => 'tab-overview', 'active' => $showOverview]
         ]
     ]); ?>

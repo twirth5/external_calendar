@@ -10,6 +10,7 @@ class m171126_184909_calendar_export extends Migration
             'id' => 'pk',
             'user_id' => $this->integer()->notNull(),
             'name' => $this->string(100)->notNull(),
+            'token' => $this->string(45)->notNull(),
             'filter_participating' => $this->boolean()->defaultValue(0),
             'filter_mine' => $this->boolean()->defaultValue(0),
             'filter_only_public' => $this->boolean()->defaultValue(0),

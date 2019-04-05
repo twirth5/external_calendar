@@ -28,3 +28,8 @@
 #calendar-entry-form .tab-menu {
     margin-bottom:0px;
 }
+
+.external-calendar-overview textarea {
+    background-color:white !important;
+    cursor: default !important;
+}

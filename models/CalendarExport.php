@@ -4,14 +4,17 @@
 namespace humhub\modules\external_calendar\models;
 
 
+use humhub\libs\UUID;
 use Yii;
 use humhub\components\ActiveRecord;
 use humhub\modules\user\models\User;
+use yii\helpers\Url;
 
 /**
  * @property int $id
  * @property int $user_id
  * @property string $name
+ * @property string $token
  * @property boolean $filter_participating
  * @property boolean $filter_mine
  * @property boolean $filter_only_public
@@ -37,6 +40,25 @@ class CalendarExport extends ActiveRecord
             [['space_selection'], 'integer', 'min' => 0, 'max' => 2],
 
         ];
+    }
+
+    public function getExportUrl()
+    {
+        return Url::to(['/external_calendar/export/export', 'token' => $this->token], true);
+    }
+
+    /**
+     * @param $insert
+     * @return bool
+     * @throws \yii\base\Exception
+     */
+    public function beforeSave($insert)
+    {
+        if(empty($this->token)) {
+            $this->token = UUID::v4();
+        }
+
+        return parent::beforeSave($insert);
     }
 
     public function getSpaces()

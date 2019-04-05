@@ -7,6 +7,9 @@ use yii\helpers\Url;
 use humhub\modules\external_calendar\models\CalendarExportSpaces;
 
 /* @var $this \humhub\components\View */
+/* @var $model \humhub\modules\external_calendar\models\CalendarExport */
+
+$saveButtonLabel = $model->isNewRecord ?  Yii::t('ExternalCalendarModule.base', 'Generate export Url') :  Yii::t('base', 'Save');
 
 ?>
 
@@ -52,8 +55,7 @@ use humhub\modules\external_calendar\models\CalendarExportSpaces;
     </div>
 
     <div class="modal-footer">
-        <?= ModalButton::submitModal(Yii::$app->user->getIdentity()->createUrl('/external_calendar/export/edit'),
-            Yii::t('CalendarModule.config', 'Generate export Url')); ?>
+        <?= ModalButton::submitModal(Url::to(['/external_calendar/export/edit', 'id' => $model->id]), $saveButtonLabel); ?>
     </div>
 
 <?php ActiveForm::end() ?>
