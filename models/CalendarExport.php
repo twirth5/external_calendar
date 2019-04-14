@@ -5,6 +5,9 @@ namespace humhub\modules\external_calendar\models;
 
 
 use humhub\libs\UUID;
+use humhub\modules\calendar\interfaces\AbstractCalendarQuery;
+use humhub\modules\calendar\interfaces\CalendarService;
+use humhub\modules\space\models\Membership;
 use Yii;
 use humhub\components\ActiveRecord;
 use humhub\modules\user\models\User;
@@ -40,6 +43,36 @@ class CalendarExport extends ActiveRecord
             [['space_selection'], 'integer', 'min' => 0, 'max' => 2],
 
         ];
+    }
+
+    public function getFilterArray()
+    {
+        $result = [];
+        if($this->filter_participating) {
+            $result[] = AbstractCalendarQuery::FILTER_PARTICIPATE;
+        }
+
+        if($this->filter_mine) {
+            $result[] = AbstractCalendarQuery::FILTER_MINE;
+        }
+
+        return $result;
+    }
+
+    public function getContainers()
+    {
+        $result = [];
+        if($this->include_profile) {
+            $result[] = $this->user;
+        }
+
+        if($this->space_selection === static::SPACES_ALL) {
+            $result = array_merge($result, Membership::getUserSpaceQuery($this->user)->all());
+        } else if($this->space_selection === static::SPACES_SELECTION) {
+            $result =  array_merge($result, $this->spaces);
+        }
+
+        return $result;
     }
 
     public function getExportUrl()
