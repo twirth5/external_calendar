@@ -3,6 +3,9 @@
 namespace humhub\modules\external_calendar;
 
 use humhub\modules\calendar\widgets\CalendarControls;
+use humhub\modules\calendar\widgets\ContainerConfigMenu;
+use humhub\modules\content\components\ContentContainerActiveRecord;
+use humhub\modules\content\helpers\ContentContainerHelper;
 use humhub\modules\external_calendar\widgets\ExportButton;
 use Yii;
 use yii\base\WidgetEvent;
@@ -33,6 +36,22 @@ class Events extends BaseObject
     /**
      * @param $event WidgetEvent
      */
+    public static function onContainerConfigMenuInit($event)
+    {
+        /* @var $container ContentContainerActiveRecord */
+        $container = ContentContainerHelper::getCurrent();
+        $event->sender->addItem([
+            'label' => Yii::t('ExternalCalendarModule.base', 'External Calendars'),
+            'id' => 'tab-calendar-external',
+            'url' => $container->createUrl('/external_calendar/calendar/index'),
+            'isActive' => (Yii::$app->controller->module
+                && Yii::$app->controller->module->id === 'external_calendar'),
+        ]);
+    }
+
+    /**
+     * @param $event WidgetEvent
+     */
     public static function onCalendarControlsInit($event)
     {
         /* @var $controls CalendarControls */
@@ -42,9 +61,6 @@ class Events extends BaseObject
     }
 
 
-    /**
-     * @param $event
-     */
     public static function onFindCalendarItems($event)
     {
         $contentContainer = $event->contentContainer;

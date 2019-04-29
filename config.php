@@ -20,6 +20,7 @@ return [
         ['class' => IntegrityController::class, 'event' => IntegrityController::EVENT_ON_RUN, 'callback' => [Events::class, 'onIntegrityCheck']],
         ['class' => WallEntryLinks::class, 'event' => 'init', 'callback' => [Events::class, 'onWallEntryLinks']],
         ['class' => 'humhub\modules\calendar\widgets\CalendarControls', 'event' => 'init', 'callback' => [Events::class, 'onCalendarControlsInit']],
+        ['class' => 'humhub\modules\calendar\widgets\ContainerConfigMenu', 'event' => 'init', 'callback' => [Events::class, 'onContainerConfigMenuInit']],
     ],
 ];
 ?>

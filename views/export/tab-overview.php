@@ -44,8 +44,10 @@ $dataProvider = new ActiveDataProvider([
             [
                 'class' => 'humhub\libs\ActionColumn',
                 'options' => ['style' => 'min-width:100px;'],
+                'modelIdAttribute' => 'token',
                 'actions' => function ($model, $key) {
                     return [
+                        Yii::t('ExternalCalendarModule.export', 'Download') => ['export', 'linkOptions' => ['data-pjax-prevent' => 1]],
                         Yii::t('ExternalCalendarModule.export', 'Edit') =>
                             ['edit', 'linkOptions' => [
                                 'data-action-click' => 'ui.modal.load',

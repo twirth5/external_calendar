@@ -5,11 +5,12 @@ use yii\widgets\ActiveForm;
 use humhub\modules\space\widgets\SpacePickerField;
 use yii\helpers\Url;
 use humhub\modules\external_calendar\models\CalendarExportSpaces;
+use humhub\modules\external_calendar\models\CalendarExport;
 
 /* @var $this \humhub\components\View */
 /* @var $model \humhub\modules\external_calendar\models\CalendarExport */
 
-$saveButtonLabel = $model->isNewRecord ?  Yii::t('ExternalCalendarModule.base', 'Generate export Url') :  Yii::t('base', 'Save');
+$saveButtonLabel = $model->isNewRecord ? Yii::t('ExternalCalendarModule.base', 'Generate export Url') : Yii::t('base', 'Save');
 
 ?>
 
@@ -39,15 +40,18 @@ $saveButtonLabel = $model->isNewRecord ?  Yii::t('ExternalCalendarModule.base', 
             <div class="row">
                 <div class="col-sm-4 ">
                     <?= $form->field($model, 'include_profile')->checkbox() ?>
-                    <?= $form->field($model, 'space_selection')->radio(['label' => Yii::t('ExternalCalendarModule.export', 'No spaces'), 'value' => 0])?>
-                    <?= $form->field($model, 'space_selection')->radio(['label' => Yii::t('ExternalCalendarModule.export', 'All my spaces'), 'value' => 1])?>
-                    <?= $form->field($model, 'space_selection')->radio(['label' => Yii::t('ExternalCalendarModule.export', 'Only following spaces:'), 'value' => 2])?>
-                    <?= $form->field($model, 'spaces')->widget(SpacePickerField::class,
-                        ['defaultResults' => CalendarExportSpaces::getCalendarMemberSpaces(), 'url' => Url::to(['/external_calendar/export/search-space'])])->label(false)?>
+                    <?= $form->field($model, 'space_selection')->radioList([
+                        CalendarExport::SPACES_NONE => Yii::t('ExternalCalendarModule.export', 'No spaces'),
+                        CalendarExport::SPACES_ALL => Yii::t('ExternalCalendarModule.export', 'All my spaces'),
+                        CalendarExport::SPACES_SELECTION => Yii::t('ExternalCalendarModule.export', 'Only following spaces:'),
+                    ], ['separator'=> '<br>']); ?>
+
+                    <?= $form->field($model, 'spaceSelection')->widget(SpacePickerField::class,
+                        ['defaultResults' => CalendarExportSpaces::getCalendarMemberSpaces(), 'url' => Url::to(['/external_calendar/export/search-space'])])->label(false) ?>
                 </div>
                 <div class="col-sm-4">
                     <?= $form->field($model, 'filter_participating')->checkbox() ?>
-                    <?= $form->field($model,'filter_mine')->checkbox() ?>
+                    <?= $form->field($model, 'filter_mine')->checkbox() ?>
                     <?= $form->field($model, 'filter_only_public')->checkbox() ?>
                 </div>
             </div>

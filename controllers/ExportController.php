@@ -3,54 +3,50 @@
 
 namespace humhub\modules\external_calendar\controllers;
 
-use humhub\modules\calendar\interfaces\CalendarService;
-use humhub\modules\external_calendar\models\CalendarExport;
-use humhub\modules\external_calendar\models\VCalendar;
 use Yii;
+use yii\web\HttpException;
+use humhub\modules\external_calendar\integration\calendar\CalendarExportService;
+use humhub\modules\external_calendar\models\CalendarExport;
+use Sabre\VObject\UUIDUtil;
 use humhub\components\Controller;
 use humhub\modules\external_calendar\models\CalendarExportSpaces;
 use humhub\modules\space\widgets\Chooser;
-use yii\web\HttpException;
-use \DateTime;
 
 class ExportController extends Controller
 {
     public $requireContainer = false;
 
-    public function actionExport($token)
+    /**
+     * @var CalendarExportService
+     */
+    private $exportService;
+
+    public function init()
     {
-        try {
-            $export = CalendarExport::findOne(['token' => $token]);
+        parent::init();
+        $this->exportService = Yii::createObject(CalendarExportService::class);
+    }
 
-            if (!$export) {
-                throw new HttpException(404);
-            }
+    public function getAccessRules()
+    {
+        return [
+            ['login' => ['edit', 'search-space']]
+        ];
+    }
 
-            $service = new CalendarService();
-
-            if (!$export->filter_only_public) {
-                Yii::$app->user->setIdentity($export->user);
-            }
-
-            $start = new DateTime('-6 month');
-            $end = new DateTime('+12 month');
-
-            $items = [[]];
-            foreach ($export->getContainers() as $container) {
-                $items[] = $service->getCalendarItems($start, $end, $export->getFilterArray(), $container);
-            }
-
-            $items = array_merge(...$items);
-
-            $cal = new VCalendar(['items' => $items]);
-
-            return $cal->serialize();
-
-            return Yii::$app->response->sendContentAsFile($cal->serialize(), uniqid() . '.ics', ['mimeType' => 'text/calendar']);
-
-        } finally {
-            Yii::$app->user->setIdentity(null);
-        }
+    /**
+     * @param $token
+     * @return \yii\web\Response
+     * @throws HttpException
+     * @throws \Throwable
+     * @throws \yii\web\RangeNotSatisfiableHttpException
+     */
+    public function actionExport($token, $from = null, $to = null)
+    {
+        $from = ($from) ? (new \DateTime())->setTimestamp($from) : null;
+        $to = ($to) ? (new \DateTime())->setTimestamp($to) : null;
+        $ics = $this->exportService->createIcsByExportToken($token, $from, $to);
+        return Yii::$app->response->sendContentAsFile($ics, UUIDUtil::getUUID() . '.ics', ['mimeType' => 'text/calendar']);
     }
 
     public function actionEdit($id = null)

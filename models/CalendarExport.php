@@ -4,10 +4,10 @@
 namespace humhub\modules\external_calendar\models;
 
 
-use humhub\libs\UUID;
 use humhub\modules\calendar\interfaces\AbstractCalendarQuery;
-use humhub\modules\calendar\interfaces\CalendarService;
 use humhub\modules\space\models\Membership;
+use humhub\modules\calendar\models\CalendarEntry;
+use humhub\modules\space\models\Space;
 use Yii;
 use humhub\components\ActiveRecord;
 use humhub\modules\user\models\User;
@@ -28,11 +28,20 @@ class CalendarExport extends ActiveRecord
 {
     const SPACES_NONE = 0;
     const SPACES_ALL = 1;
-    const SPACES_SELECTION = 1;
+    const SPACES_SELECTION = 2;
+
+    public $spaceSelection = [];
 
     public static function tableName()
     {
         return 'external_calendar_export';
+    }
+
+    public function afterFind()
+    {
+        foreach ($this->spaces as $space) {
+            $this->spaceSelection[] = $space->guid;
+        }
     }
 
     public function rules()
@@ -41,8 +50,37 @@ class CalendarExport extends ActiveRecord
             ['name', 'required'],
             [['filter_only_public', 'filter_participating', 'filter_mine', 'include_profile'], 'boolean'],
             [['space_selection'], 'integer', 'min' => 0, 'max' => 2],
+            [['name'], 'validateSpaces'],
+            [['spaceSelection'], 'safe'],
 
         ];
+    }
+
+    public function validateSpaces()
+    {
+        if($this->space_selection == static::SPACES_SELECTION && empty($this->spaceSelection)) {
+            $this->addError('spaceSelection', Yii::t('ExternalCalendarModule.export','Please select at least one space.'));
+            return;
+        }
+
+        foreach ($this->spaceSelection as $guid) {
+            $space = Space::findOne(['guid' => $guid]);
+            if(!$space || !$space->isMember()) {
+                $this->addError('spaceSelection', Yii::t('ExternalCalendarModule.export','Invalid space selection'));
+            }
+        }
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        CalendarExportSpaces::deleteAll(['calendar_export_id' => $this->id]);
+
+        if($this->space_selection == static::SPACES_SELECTION && !empty($this->spaceSelection)) {
+            foreach ($this->spaceSelection as $guid) {
+                $space = Space::findOne(['guid' => $guid]);
+                (new CalendarExportSpaces(['calendar_export_id' => $this->id, 'space_id' => $space->id]))->save();
+            }
+        }
     }
 
     public function getFilterArray()
@@ -88,7 +126,7 @@ class CalendarExport extends ActiveRecord
     public function beforeSave($insert)
     {
         if(empty($this->token)) {
-            $this->token = UUID::v4();
+            $this->token = CalendarEntry::createUUid('calendar');
         }
 
         return parent::beforeSave($insert);
@@ -96,7 +134,12 @@ class CalendarExport extends ActiveRecord
 
     public function getSpaces()
     {
-        $this->hasMany(CalendarExportSpaces::class, ['calendar_export_id' => 'id']);
+        return $this->hasMany(Space::class, ['id' => 'space_id'])->via('spaceExports');
+    }
+
+    public function getSpaceExports()
+    {
+        return $this->hasMany(CalendarExportSpaces::class, ['calendar_export_id' => 'id']);
     }
 
     public function getUser()

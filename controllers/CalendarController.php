@@ -257,4 +257,16 @@ class CalendarController extends ContentContainerController
     {
         return $this->contentContainer->permissionManager->can(ManageCalendar::class);
     }
+
+    /**
+     * Checks if the requested module is available in this contentContainer.
+     *
+     * @throws HttpException if the module is not enabled
+     */
+    protected function checkModuleIsEnabled()
+    {
+        if (!$this->contentContainer->moduleManager->isEnabled('calendar')) {
+            throw new HttpException(405, Yii::t('base', 'Module is not enabled on this content container!'));
+        }
+    }
 }
