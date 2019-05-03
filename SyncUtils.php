@@ -22,15 +22,17 @@ class SyncUtils
         if (!isset($url)) {
             return false;
         }
+
         try {
             // load ical and parse it
-            $ical = new ICal($url, array(
+            $ical = new ICal($url, [
                 'defaultSpan' => 2,     // Default value
                 'defaultTimeZone' => Yii::$app->timeZone,
                 'defaultWeekStart' => 'MO',  // Default value
                 'skipRecurrence' => false, // Default value
                 'useTimeZoneWithRRules' => false, // Default value
-            ));
+            ]);
+
             return $ical;
         } catch (\Exception $e) {
             return false;

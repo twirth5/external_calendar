@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use humhub\modules\calendar\widgets\ContainerConfigMenu;
 
 
 /* @var $this yii\web\View */
@@ -13,6 +14,9 @@ $this->title = Yii::t('ExternalCalendarModule.views_calendar', 'Add external Cal
     <div class="panel-heading">
         <h1><?= Html::encode($this->title) ?></h1>
     </div>
+
+    <?= ContainerConfigMenu::widget() ?>
+
     <div class="panel-body">
         <?= $this->render('_form', [
             'model' => $model,

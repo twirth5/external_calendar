@@ -3,6 +3,7 @@
 namespace humhub\modules\external_calendar\controllers;
 
 use Yii;
+use yii\base\InvalidValueException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use humhub\modules\space\models\Space;
@@ -96,30 +97,20 @@ class CalendarController extends ContentContainerController
         set_time_limit(180); // Set max execution time 3 minutes.
         $calendarModel = ExternalCalendar::find()->contentContainer($this->contentContainer)->where(['external_calendar.id' => $id])->one();
 
-        if ($calendarModel) {
-            $ical = SyncUtils::createICal($calendarModel->url);
-            if ($ical) {
-                // add info to CalendarModel
-                $calendarModel->addAttributes($ical);
-                $calendarModel->save();
-
-                // check events
-                if ($ical->hasEvents()) {
-                    $events = SyncUtils::getEvents($calendarModel, $ical);
-                    $result = SyncUtils::checkAndSubmitModels($events, $calendarModel);
-                    if (!$result) {
-                        return ModalClose::widget(['error' => Yii::t('ExternalCalendarModule.sync_result', 'Error while check and submit models...')]);
-                    } else {
-                        return ModalClose::widget(['success' => Yii::t('ExternalCalendarModule.sync_result', 'Sync successfull!')]);
-                    }
-                }
-            } else {
-                return ModalClose::widget(['error' => Yii::t('ExternalCalendarModule.sync_result', 'Error while creating ical... Check if link is reachable.')]);
-            }
-        } else {
+        if (!$calendarModel) {
             return ModalClose::widget(['error' => Yii::t('ExternalCalendarModule.sync_result', 'Calendar not found!')]);
         }
-        return ModalClose::widget(['warn' => Yii::t('ExternalCalendarModule.sync_result', 'Warning! Something strange happened. Please try again.')]);
+
+        try {
+            $calendarModel->sync();
+            return ModalClose::widget(['success' => Yii::t('ExternalCalendarModule.sync_result', 'Sync successfull!')]);
+        } catch (InvalidValueException $e) {
+            Yii::error($e);
+            return ModalClose::widget(['error' => Yii::t('ExternalCalendarModule.sync_result', $e->getMessage())]);
+        } catch (\Exception $e) {
+            Yii::error($e);
+            return ModalClose::widget(['error' => Yii::t('ExternalCalendarModule.sync_result', 'An unknown error occured while synchronizing your calendar!')]);
+        }
     }
 
     /**
