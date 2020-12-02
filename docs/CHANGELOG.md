@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v1.3.0 (Unreleased)
+v1.2.1 (Unreleased)
 ----------------------
 - Enh #4670: Enable default permissions
 
