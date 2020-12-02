@@ -128,8 +128,8 @@ class Module extends ContentContainerModule
     {
         if ($contentContainer !== null) {
             return [
-                new permissions\ManageCalendar(),
-                new permissions\ManageEntry(),
+                new permissions\ManageCalendar(['contentContainer' => $contentContainer]),
+                new permissions\ManageEntry(['contentContainer' => $contentContainer]),
             ];
         }
         return [];

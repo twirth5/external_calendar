@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v1.3.0 (Unreleased)
+----------------------
+- Enh #4670: Enable default permissions
+
 v1.2.0 (November 04, 2020)
 ----------------------
 - Enh #17: Added export button tooltip
